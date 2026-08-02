@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reset EyeNote Password</title>
+  <meta name="description" content="Reset your EyeNote account password.">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <main class="page">
+    <section class="shell card">
+      <div class="logo" aria-hidden="true"><span></span></div>
+      <h1>Reset password</h1>
+      <p class="copy">Use the reset email link here, or send yourself a fresh reset email from this page.</p>
+
+      <div id="status" class="status">Checking reset link...</div>
+
+      <form id="requestForm" class="form hidden">
+        <div class="field">
+          <label for="email">Account email</label>
+          <input id="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+        </div>
+        <button class="primary" type="submit">Send reset email</button>
+      </form>
+
+      <form id="passwordForm" class="form hidden">
+        <div class="field">
+          <label for="password">New password</label>
+          <input id="password" type="password" autocomplete="new-password" minlength="5" placeholder="At least 5 characters" required>
+        </div>
+        <div class="field">
+          <label for="confirmPassword">Confirm password</label>
+          <input id="confirmPassword" type="password" autocomplete="new-password" minlength="5" placeholder="Type it again" required>
+        </div>
+        <div class="form-actions">
+          <button class="primary" type="submit">Save new password</button>
+          <a class="button" href="../">Back to EyeNote</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://slxxxbxlalqhbalhwfyn.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_GIDM31A3a9Sxy-LLnIVzmw_ngQpOBFP";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        detectSessionInUrl: true,
+        persistSession: true,
+        autoRefreshToken: false
+      }
+    });
+
+    const statusBox = document.getElementById("status");
+    const requestForm = document.getElementById("requestForm");
+    const passwordForm = document.getElementById("passwordForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const confirmInput = document.getElementById("confirmPassword");
+
+    const basePath = location.pathname.includes("/EyeNote/") ? "/EyeNote" : "";
+    const resetUrl = `${location.origin}${basePath}/reset-password/`;
+
+    function setStatus(message, type = "") {
+      statusBox.textContent = message;
+      statusBox.className = `status ${type}`.trim();
+    }
+
+    function showRequest() {
+      requestForm.classList.remove("hidden");
+      passwordForm.classList.add("hidden");
+    }
+
+    function showPassword() {
+      requestForm.classList.add("hidden");
+      passwordForm.classList.remove("hidden");
+    }
+
+    function cleanUrl() {
+      history.replaceState(null, "", `${basePath}/reset-password/`);
+    }
+
+    async function boot() {
+      const url = new URL(location.href);
+      const hash = new URLSearchParams(location.hash.slice(1));
+      const error = url.searchParams.get("error_description") || hash.get("error_description");
+      const email = url.searchParams.get("email");
+      if (email) emailInput.value = email;
+
+      if (error) {
+        setStatus(error, "bad");
+        showRequest();
+        return;
+      }
+
+      const code = url.searchParams.get("code");
+      if (code) {
+        const { error: exchangeError } = await supabaseClient.auth.exchangeCodeForSession(code);
+        if (exchangeError) {
+          setStatus("That reset link could not be finished here. Send a new reset email from this page, then open the newest email.", "bad");
+          showRequest();
+          return;
+        }
+        cleanUrl();
+      }
+
+      const { data } = await supabaseClient.auth.getSession();
+      if (data.session) {
+        setStatus("Reset link ready. Type your new password.", "good");
+        showPassword();
+      } else {
+        setStatus("Type your EyeNote email and this page will send a fresh reset link.", "");
+        showRequest();
+      }
+    }
+
+    requestForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const email = emailInput.value.trim().toLowerCase();
+      if (!email.includes("@")) {
+        setStatus("Type a real email address.", "bad");
+        return;
+      }
+      setStatus("Sending reset email...");
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: resetUrl
+      });
+      if (error) {
+        const message = error.message.toLowerCase().includes("rate")
+          ? "Too many reset emails were sent. Wait a minute, then try again."
+          : error.message;
+        setStatus(message, "bad");
+        return;
+      }
+      setStatus("Reset email sent. Open the newest EyeNote email on this same browser.", "good");
+    });
+
+    passwordForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const password = passwordInput.value;
+      const confirm = confirmInput.value;
+      if (password.length < 5) {
+        setStatus("Password needs at least 5 characters.", "bad");
+        return;
+      }
+      if (password !== confirm) {
+        setStatus("The passwords do not match.", "bad");
+        return;
+      }
+      setStatus("Saving new password...");
+      const { error } = await supabaseClient.auth.updateUser({ password });
+      if (error) {
+        setStatus(error.message, "bad");
+        return;
+      }
+      await supabaseClient.auth.signOut();
+      setStatus("Password changed. Open EyeNote and sign in with the new password.", "good");
+      passwordForm.classList.add("hidden");
+    });
+
+    boot();
+  </script>
+</body>
+</html>
