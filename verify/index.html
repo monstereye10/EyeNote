@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verify EyeNote Email</title>
+  <meta name="description" content="Verify your EyeNote account email.">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <main class="page">
+    <section class="shell card">
+      <div class="logo" aria-hidden="true"><span></span></div>
+      <h1>Email verified</h1>
+      <p class="copy">Your EyeNote email link opened. Go back to EyeNote and sign in.</p>
+      <div id="status" class="status">Checking link...</div>
+      <div class="actions">
+        <a class="button primary" href="https://github.com/monstereye10/EyeNote/releases/download/v1.0.0/EyeNote-Setup.exe">Download EyeNote</a>
+        <a class="button" href="../">EyeNote home</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://slxxxbxlalqhbalhwfyn.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_GIDM31A3a9Sxy-LLnIVzmw_ngQpOBFP";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        detectSessionInUrl: true,
+        persistSession: true,
+        autoRefreshToken: false
+      }
+    });
+    const statusBox = document.getElementById("status");
+    const basePath = location.pathname.includes("/EyeNote/") ? "/EyeNote" : "";
+
+    function setStatus(message, type = "") {
+      statusBox.textContent = message;
+      statusBox.className = `status ${type}`.trim();
+    }
+
+    async function boot() {
+      const url = new URL(location.href);
+      const hash = new URLSearchParams(location.hash.slice(1));
+      const error = url.searchParams.get("error_description") || hash.get("error_description");
+      if (error) {
+        setStatus(error, "bad");
+        return;
+      }
+      const code = url.searchParams.get("code");
+      if (code) {
+        const { error: exchangeError } = await supabaseClient.auth.exchangeCodeForSession(code);
+        if (exchangeError) {
+          setStatus("This link was opened, but Supabase could not finish it. Try signing in from EyeNote.", "bad");
+          return;
+        }
+        history.replaceState(null, "", `${basePath}/verify/`);
+      }
+      await supabaseClient.auth.signOut();
+      setStatus("All set. You can close this tab and sign in to EyeNote.", "good");
+    }
+
+    boot();
+  </script>
+</body>
+</html>
