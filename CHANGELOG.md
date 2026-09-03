@@ -1,5 +1,12 @@
 # EyeNote Changelog
 
+## 2.0.10
+
+- Built a new Windows installer.
+- Updated the installer agreement.
+- Added the Cancel Premium link to the Premium area.
+- Updated the website download links and release notes.
+
 ## 2.0.9
 
 - Bug fixes.
