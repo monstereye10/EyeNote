@@ -2,12 +2,7 @@
 
 ## 2.1.1
 
-- Cleaned up sub-board cards so they use the simple app-style look instead of the old full card frame.
-- Added sub-board background color controls and icon controls.
-- Fixed sub-board hitboxes so scrolling and zooming work much closer to the sub-board.
-- Made sub-board icons fully opaque and gave them the same small shadow feel as the rest of the app buttons.
-- Simplified the sub-board right-click menu so it only shows the actions that make sense for sub-boards.
-- Tightened the sidebar board/document spacing and menu polish from the last build.
+- Bug fixes and crash fixes.
 
 ## 2.0.10
 
