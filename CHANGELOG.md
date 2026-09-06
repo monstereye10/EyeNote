@@ -1,5 +1,14 @@
 # EyeNote Changelog
 
+## 2.1.1
+
+- Cleaned up sub-board cards so they use the simple app-style look instead of the old full card frame.
+- Added sub-board background color controls and icon controls.
+- Fixed sub-board hitboxes so scrolling and zooming work much closer to the sub-board.
+- Made sub-board icons fully opaque and gave them the same small shadow feel as the rest of the app buttons.
+- Simplified the sub-board right-click menu so it only shows the actions that make sense for sub-boards.
+- Tightened the sidebar board/document spacing and menu polish from the last build.
+
 ## 2.0.10
 
 - Built a new Windows installer.
@@ -24,7 +33,15 @@
 - Moved the Relationship Map section above Drawing.
 - Improved custom app logos, logo color saving, logo presets, circular uploaded logos, and matching taskbar/home-screen icons.
 - Reduced startup delay by showing local boards first and delaying cloud, font, spellcheck, file-link, and sound setup until after the app opens.
+- Fixed a Windows crash path tied to Flutter's accessibility tree by rebuilding EyeNote on a newer Flutter engine.
+- Reduced startup freezes by moving the large spell-check dictionary setup off the first app open.
+- Lowered idle CPU from animated card effects by keeping text, media, and controls out of every animation repaint.
+- Reduced extra startup work from sound effects by loading sound players only when a sound is actually played.
+- Improved document spell-check ranking so short common corrections like "well" win over obscure words, and made red-underlined words open a direct spell menu from the first right-click.
 - Added the Cancel Premium link to the Premium area.
+- Added separate Premium and Cancel Premium buttons in settings, and made board card dragging redraw faster while moving apps.
+- Changed EyeNote Premium buttons to open /premium and made the Warning logo preset use the full bundled logo source.
+- Made sub-board cards solid again and gave their open target a bigger hitbox.
 - Updated Premium to $1.99/month across the app and website.
 - Added support, admin, cancel Premium, install help, privacy updates, better website download links, and fuller release notes.
 
