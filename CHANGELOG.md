@@ -1,5 +1,13 @@
 # EyeNote Changelog
 
+## 2.1.2
+
+- Bug fixes and crash fixes.
+- Cleaned up board and document customization.
+- Fixed saved color presets so rename, delete, and save preset controls fit correctly.
+- Removed document-only color preset clutter.
+- Improved the board preview in customization.
+
 ## 2.1.1
 
 - Bug fixes and crash fixes.
